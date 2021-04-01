@@ -1,0 +1,42 @@
+package kr.or.ddit.groupware.model;
+
+public class CommCDVo {
+	
+	private String comm_tp_char ;
+	private int comm_no      ;
+	private String cd_ko_nm     ;
+	private String cd_use       ;
+	
+	public String getComm_tp_char() {
+		return comm_tp_char;
+	}
+	public void setComm_tp_char(String comm_tp_char) {
+		this.comm_tp_char = comm_tp_char;
+	}
+	public int getComm_no() {
+		return comm_no;
+	}
+	public void setComm_no(int comm_no) {
+		this.comm_no = comm_no;
+	}
+	public String getCd_ko_nm() {
+		return cd_ko_nm;
+	}
+	public void setCd_ko_nm(String cd_ko_nm) {
+		this.cd_ko_nm = cd_ko_nm;
+	}
+	public String getCd_use() {
+		return cd_use;
+	}
+	public void setCd_use(String cd_use) {
+		this.cd_use = cd_use;
+	}
+	@Override
+	public String toString() {
+		return "CommCDVo [comm_tp_char=" + comm_tp_char + ", comm_no=" + comm_no + ", cd_ko_nm=" + cd_ko_nm
+				+ ", cd_use=" + cd_use + "]";
+	}
+	
+	
+
+}

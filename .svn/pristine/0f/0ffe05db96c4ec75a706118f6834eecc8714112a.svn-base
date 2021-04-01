@@ -1,0 +1,26 @@
+package kr.or.ddit.groupware.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.OnOffVo;
+
+public interface OnOffServiceI {
+	
+	// 근태 페이징 리스트 출력
+	Map<String, Object> selectOnOffPaging(PageVo pageVo);
+	
+	// 근태 상세조회 페이징 리스트 출력
+	Map<String, Object> selectOnOffDetailPaging(Map<String, Object> map);
+	
+	// 사원 근태 상세정보
+	OnOffVo selectonoff(int emp_no);
+	
+	// 근태 기본 리스트
+	List<OnOffVo> selectOnOfflist();
+	
+	// 사원근태 상세 리스트
+	List<OnOffVo> selectOnOffDetaillist(int emp_no);
+
+}

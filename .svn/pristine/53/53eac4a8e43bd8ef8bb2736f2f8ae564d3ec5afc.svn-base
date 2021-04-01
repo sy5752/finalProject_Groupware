@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="app">
+	<select id="userInfoList" resultType="empVo" parameterType="pageVo">
+		SELECT *
+		FROM
+		    (SELECT ROWNUM rn, a.*
+		     FROM
+		         (SELECT dept_nm, cd_ko_nm, ko_nm
+		          FROM emp e, comm_cd c, dept d
+                  WHERE e.PO_cd = c.COMM_NO
+                  AND e.dept_no = d.dept_no
+		          ORDER BY emp_id
+		          ) a
+		     WHERE ROWNUM &lt;= #{page} * #{pageSize}
+		     )
+		WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize}
+	</select>
+</mapper>
+

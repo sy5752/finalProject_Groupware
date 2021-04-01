@@ -1,0 +1,34 @@
+package kr.or.ddit.groupware.repository;
+
+import java.util.List;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+public interface EmpDaoI {
+
+	//로그인
+	EmpVo selectUser(String emp_id);
+
+	//인사정보 사원 페이징 list
+	List<EmpVo> selectPagingUser(PageVo vo);
+	
+	//인사정보 전체사원 수
+	int selectAllUserCount();
+	
+	//상세정보
+	EmpVo detailUserAjax(EmpVo empVo);
+	
+	//사원정보 수정
+	int modifyUserAjax(EmpVo empVo);
+	
+	//엑셀다운
+	List<EmpVo> selectAllEmp();
+	
+	
+	
+	//사원 직무 조회
+	List<String> selectJobList(int emp_no);
+	
+	
+}

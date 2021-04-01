@@ -1,0 +1,64 @@
+package kr.or.ddit.groupware.repository;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+@Repository("empDao")
+public class EmpDao implements EmpDaoI{
+
+	@Resource(name = "sqlSessionTemplate")
+	private SqlSessionTemplate template;
+	
+	//로그인
+	@Override
+	public EmpVo selectUser(String emp_id) {
+		return template.selectOne("emp.selectUser", emp_id);
+	}
+	
+	//인사정보 사원리스트 페이징
+	@Override
+	public List<EmpVo> selectPagingUser(PageVo vo) {
+		return template.selectList("emp.selectPagingUser", vo);
+	}
+
+	//인사정보 사원수
+	@Override
+	public int selectAllUserCount() {
+		return template.selectOne("emp.selectAllUserCount");
+	}
+	
+	//상세정보
+	@Override
+	public EmpVo detailUserAjax(EmpVo empVo) {
+		return template.selectOne("emp.detailUserAjax", empVo);
+	}
+	
+	//사원정보 수정
+	@Override
+	public int modifyUserAjax(EmpVo empVo) {
+		return template.update("emp.modifyUserAjax", empVo);
+	}
+
+	@Override
+	public List<EmpVo> selectAllEmp() {
+		return template.selectList("emp.selectAllEmp");
+	}
+	
+	
+	
+	//사원 직무 조회
+	@Override
+	public List<String> selectJobList(int emp_no) {
+		// TODO Auto-generated method stub
+		return template.selectList("emp.selectJobList", emp_no);
+	}
+
+
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vacation">
+	
+	<!-- 휴가등록 -->
+	<insert id="registVacation" parameterType="vacationVo">
+		INSERT INTO vacation VALUES(
+		vac_seq.nextVal
+		,#{s_dt}
+		,#{e_dt}
+		,#{emp_no}
+		,#{vac_cd}
+	)
+	</insert>
+	<!-- 휴가등록 성공시 해당휴가번호를 불러옴 -->
+	<select id="vacationMaxNo" resultType="int">
+		SELECT MAX(vac_no)
+		FROM vacation
+	</select>
+	<!-- 휴가등록시 사원 연차 감소를 위한 휴가기간 구하기 -->
+	<select id="vacationTime" parameterType="vacationVo" resultType="int">
+		SELECT e_dt-s_dt
+		FROM vacation
+		WHERE vac_no = #{vac_no}
+	</select>
+	
+	<!-- 휴가시 사원 연차수 감소 -->
+	<update id="subVacCnt" parameterType="vacationVo">
+		UPDATE emp SET vac_cnt=(vac_cnt-#{vacationday}) WHERE emp_no=#{emp_no}
+	</update>
+</mapper>

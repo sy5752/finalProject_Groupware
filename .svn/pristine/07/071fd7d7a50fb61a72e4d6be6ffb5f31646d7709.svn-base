@@ -1,0 +1,61 @@
+package kr.or.ddit.groupware.approval.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.approval.model.AppLineVo;
+import kr.or.ddit.groupware.approval.model.AppVo;
+import kr.or.ddit.groupware.approval.repository.AppDao;
+import kr.or.ddit.groupware.model.EmpVo;
+import kr.or.ddit.groupware.repository.EmpDao;
+
+@Service("appService")
+public class AppService implements AppServiceI {
+	
+	@Resource(name = "appDao")
+	private AppDao appDao;
+	
+	@Resource(name = "empDao")
+	private EmpDao empDao;
+	
+
+	@Override
+	public Map<String, Object> userInfoList(PageVo pageVO) {
+		// TODO Auto-generated method stub
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("userList", appDao.userInfoList(pageVO));
+		map.put("userCnt", empDao.selectAllUserCount());
+		
+		
+		return map;
+	}
+
+
+	@Override
+	public int appCnt() {
+		// TODO Auto-generated method stub
+		return appDao.appCnt();
+	}
+
+
+	@Override
+	public int registApp(AppVo appvo) {
+		// TODO Auto-generated method stub
+		return appDao.registApp(appvo);
+	}
+
+
+	@Override
+	public int registAppLine(AppLineVo appLineVo) {
+		// TODO Auto-generated method stub
+		return appDao.registAppLine(appLineVo);
+	}
+	
+}

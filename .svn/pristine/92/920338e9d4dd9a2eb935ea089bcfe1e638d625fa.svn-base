@@ -1,0 +1,20 @@
+package kr.or.ddit.groupware.approval.repository;
+
+import java.util.List;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.approval.model.AppLineVo;
+import kr.or.ddit.groupware.approval.model.AppVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+public interface AppDaoI {
+	
+	//���缱 ���� ��� ����Ʈ
+	List<EmpVo> userInfoList(PageVo pageVO);
+	
+	int appCnt();
+	
+	int registApp(AppVo appvo);
+	
+	int registAppLine(AppLineVo appLineVo);
+}

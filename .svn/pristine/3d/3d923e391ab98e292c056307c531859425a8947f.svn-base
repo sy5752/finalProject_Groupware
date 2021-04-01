@@ -1,0 +1,15 @@
+package kr.or.ddit.groupware.repository;
+
+import kr.or.ddit.groupware.model.VacationVo;
+
+public interface VacationDaoI {
+	
+	//휴가등록
+	int registVacation(VacationVo vacationVo);
+	// 휴가등록 성공시 해당휴가번호를 불러옴
+	int vacationMaxNo();
+	// 휴가등록시 사원 연차 감소를 위한 휴가기간 구하기
+	int vacationTime(VacationVo vacationVo);
+	// 휴가시 사원 연차수 감소
+	int subVacCnt(VacationVo vacationVo);
+}

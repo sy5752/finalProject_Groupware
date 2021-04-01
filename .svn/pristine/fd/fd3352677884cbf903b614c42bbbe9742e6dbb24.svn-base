@@ -1,0 +1,44 @@
+package kr.or.ddit.groupware.approval.repository;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.approval.model.AppLineVo;
+import kr.or.ddit.groupware.approval.model.AppVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+@Repository("appDao")
+public class AppDao implements AppDaoI {
+	
+	@Resource(name = "sqlSessionTemplate")
+	private SqlSessionTemplate template;
+
+	@Override
+	public List<EmpVo> userInfoList(PageVo pageVO) {
+		// TODO Auto-generated method stub
+		return template.selectList("app.userInfoList", pageVO);
+	}
+
+	@Override
+	public int appCnt() {
+		// TODO Auto-generated method stub
+		return template.selectOne("app.appCnt");
+	}
+
+	@Override
+	public int registApp(AppVo appvo) {
+		// TODO Auto-generated method stub
+		return template.insert("app.registApp", appvo);
+	}
+
+	@Override
+	public int registAppLine(AppLineVo appLineVo) {
+		// TODO Auto-generated method stub
+		return template.insert("app.registAppLine", appLineVo);
+	}
+}

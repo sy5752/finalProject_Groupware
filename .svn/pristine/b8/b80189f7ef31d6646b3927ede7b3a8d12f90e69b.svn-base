@@ -1,0 +1,127 @@
+package kr.or.ddit.groupware.approval.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.approval.model.AppLineVo;
+import kr.or.ddit.groupware.approval.model.AppVo;
+import kr.or.ddit.groupware.approval.service.AppService;
+import kr.or.ddit.groupware.model.EmpVo;
+import kr.or.ddit.groupware.service.EmpService;
+
+@Controller
+@RequestMapping("app")
+public class AppController {
+	
+	@Resource(name="empService")
+	private EmpService empService;
+	
+	@Resource(name="appService")
+	private AppService appService;
+	
+	
+	@RequestMapping(path="appView", method = RequestMethod.GET)
+	public String appView() {
+		
+		return "tiles.app.appView";
+	}
+	@RequestMapping(path="registApp", method = RequestMethod.GET)
+	public String registApp(EmpVo empVo, int app_div_no, int app_det_no, Model model) {
+		
+		Date date = new Date();
+		
+		model.addAttribute("empInfo", empService.detailUserAjax(empVo));
+		model.addAttribute("today", date);
+		model.addAttribute("app_det_no", app_det_no);
+		model.addAttribute("app_div_no", app_div_no);
+		
+		return "tiles.app.appRegist";
+	}
+	
+	@RequestMapping(path="empInfoList", method = RequestMethod.GET)
+	public String empInfo(PageVo pageVo,Model model) {
+		
+		Map<String, Object> map = appService.userInfoList(pageVo);
+		
+		List<EmpVo> userList = (List<EmpVo>)map.get("userList");
+		int userCnt = (int)map.get("userCnt");
+	    int pagination = (int)Math.ceil((double)userCnt/pageVo.getPageSize());
+		
+		model.addAttribute("userList", userList);
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("pageVo", pageVo);
+		
+		return "app/empInfoList";
+	}
+	
+	@RequestMapping(path="registApp", method = RequestMethod.POST)
+	public String registApp(AppVo appVo) {
+		appVo.setApp_sta_cd(306);
+		int cnt = appService.appCnt();
+		
+		Date date = new Date();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		
+		String toYear = sdf.format(date);
+		toYear += "-"+cnt;
+		
+		appVo.setApp_char(toYear);
+		
+		
+		int insertCnt = 0;
+		try {
+			insertCnt = appService.registApp(appVo);
+		} catch (Exception e) {
+			insertCnt = 0;
+			e.printStackTrace();
+		}
+		
+		if(insertCnt == 1) {
+			int empCnt = 1;
+			AppLineVo appLineVo = new AppLineVo();
+			appLineVo.setApp_char(toYear);
+			appLineVo.setEmp_no(appVo.getEmp_no());
+			appLineVo.setApp_cd(301);
+			appLineVo.setBefo_app_cd(301);
+			appLineVo.setApp_step(empCnt);
+			appLineVo.setFin_app_cd(306);
+			for(int i = 0; i<appVo.getAppLineList().size(); i++) {
+				if(!"".equals(appVo.getAppLineList().get(i))){
+					if(i==0) {
+						appService.registAppLine(appLineVo);
+					}else {
+						int empNo = Integer.parseInt(appVo.getAppLineList().get(i));
+						appLineVo.setEmp_no(empNo);
+						appLineVo.setApp_cd(302);
+						if(i == 1) {
+							appLineVo.setBefo_app_cd(301);
+						}else {
+							appLineVo.setBefo_app_cd(302);
+						}
+						appLineVo.setApp_step(empCnt);
+						appService.registAppLine(appLineVo);
+					}
+					empCnt++;
+				}
+			}
+		}
+		
+		
+		
+		return "redirect:/app/appView";
+	}
+	
+	
+	
+}

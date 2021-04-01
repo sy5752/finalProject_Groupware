@@ -1,0 +1,13 @@
+package kr.or.ddit.groupware.approval.repository;
+
+import java.util.List;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+public interface AppDaoI {
+	
+	//결재선 지정 사원 리스트
+	List<EmpVo> userInfoList(PageVo pageVO);
+	
+}

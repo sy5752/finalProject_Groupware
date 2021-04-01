@@ -1,0 +1,189 @@
+package kr.or.ddit.groupware.contoller;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.EmpVo;
+import kr.or.ddit.groupware.service.EmpService;
+import net.sf.jxls.exception.ParsePropertyException;
+import net.sf.jxls.transformer.XLSTransformer;
+
+@Controller
+@RequestMapping("empController")
+public class EmpController {
+
+	private static final Logger logger = LoggerFactory.getLogger(EmpController.class);
+
+	
+	@Resource(name="empService")
+	private EmpService empService;
+	
+	//로그인화면
+	@RequestMapping("loginView")
+	public String loginView() {
+		return "admin/login";
+	}
+	
+	//로그인
+	@RequestMapping(path="loginProcess", method = RequestMethod.POST)
+	public String loginProcess(EmpVo empVo, HttpSession session, RedirectAttributes ra, Model model, PageVo pageVo) {
+		
+		EmpVo dbUser = empService.selectUser(empVo.getEmp_id());
+		
+		if(dbUser != null && empVo.getPass().equals(dbUser.getPass())) {
+			session.setAttribute("S_USER", dbUser);
+			model.addAttribute("userList", empService.selectPagingUser(pageVo));
+//			return "test/main";
+			return "redirect:/test/main";
+		}else {	
+			return "redirect:/empController/loginView";
+		}
+	}
+	
+	//인사정보 리스트
+	@RequestMapping("empinformation")
+	public String empinformation(PageVo pageVo, Model model) {
+		
+		Map<String, Object> map = empService.selectPagingUser(pageVo);
+		
+		List<EmpVo> userList = (List<EmpVo>)map.get("userList");
+		int userCnt = (int)map.get("userCnt");
+	    int pagination = (int)Math.ceil((double)userCnt/pageVo.getPageSize());
+		
+		model.addAttribute("userList", userList);
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("pageVo", pageVo);
+		
+		return "tiles.admin.userlist";
+		
+	}
+	
+	//인사정보 페이징AjaxHtml
+	@RequestMapping("pagingUserAjaxHtml")
+	public String pagingUserAjaxHtml(@RequestParam(defaultValue = "1") int page,
+									@RequestParam(defaultValue = "10") int pageSize,
+									Model model) {
+		
+		PageVo pageVo = new PageVo(page, pageSize);
+		
+		model.addAllAttributes(empService.selectPagingUser(pageVo));
+			
+		return "/admin/pagingUserAjaxHtml";
+	}
+	
+	//인사정보 상세조회Ajax
+	@RequestMapping("detailUserAjax")
+	public String detailUserAjax(int emp_no, Model model) {
+		EmpVo empList = new EmpVo();
+		empList.setEmp_no(emp_no);
+		
+		EmpVo detailUser = empService.detailUserAjax(empList);
+		
+		logger.debug("empVo : {}", detailUser);
+		
+		model.addAttribute("detailUser", detailUser);
+		
+		return "/admin/detailUserAjaxHtml";
+	}
+	
+	//사원정보 수정 이동
+	@RequestMapping("userModifyAjax")
+	public String userModifyAjax(EmpVo empVo,int emp_no, Model model, RedirectAttributes ra) {
+		
+		EmpVo empList = new EmpVo();
+		empList.setEmp_no(emp_no);
+		
+		EmpVo detailUser = empService.detailUserAjax(empList);
+		
+		logger.debug("empVo : {}", detailUser);
+		
+		model.addAttribute("detailUser", detailUser);
+		
+		int updatCnt = 0;
+		
+		try {
+			updatCnt = empService.modifyUserAjax(empVo);
+		}catch (Exception e) {
+			updatCnt = 0;
+		}
+		
+		if(updatCnt == 1) {
+			ra.addAttribute("emp_no", emp_no);
+			return "/admin/detailUserAjaxHtml";
+		}else {
+			return "/admin/userModifyAjaxHtml";
+		}
+		
+	}
+	
+	//엑셀 다운로드
+	public void download(HttpServletRequest request, HttpServletResponse response, Map<String, Object> bean,
+			String fileName, String templateFile, String string) throws ParsePropertyException, InvalidFormatException {
+
+		// 받아오는 매개변수 bean는 디비에서 뽑아온 데이터
+        // fileName 은 다운로드 받을때 지정되는 파일명
+        // templateFile 는 템플릿 엑셀 파일명이다.
+        
+        // tempPath는 템플릿 엑셀파일이 들어가는 경로를 넣어 준다.
+		String tempPath = request.getSession().getServletContext().getRealPath("/WEB-INF/excel");
+
+		// 별도로 다운로드 만들기 귀찮으까 이런식으로 만들어서 바로 엑셀 생성후 다운 받게 
+		try {
+
+			InputStream is = new BufferedInputStream(new FileInputStream(tempPath + "\\" + templateFile));
+			XLSTransformer xls = new XLSTransformer();
+
+			Workbook workbook = (Workbook) xls.transformXLS(is, bean);
+
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + ".xlsx\"");
+
+			OutputStream os = response.getOutputStream();
+
+			workbook.write(os);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@RequestMapping(value = "downExcel")
+    public void listExcel(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) throws Exception, Exception {
+
+		// 그냥 평소에 마이바티스에서 데이터 뽑는 방법으로 데이터를 가져온다.
+		List<EmpVo> dataList = (List<EmpVo>) empService.selectAllEmp();
+        
+		// 받은 데이터를 맵에 담는다.
+        Map<String, Object> beans = new HashMap<String, Object>();
+        beans.put("dataList", dataList);
+        
+        // 엑셀 다운로드 메소드가 담겨 있는 객체
+        EmpController me = new EmpController();
+
+        me.download(request, response, beans, "test", "templateFile.xlsx", "");
+    }
+
+	
+}

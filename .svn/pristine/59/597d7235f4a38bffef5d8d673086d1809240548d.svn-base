@@ -1,0 +1,41 @@
+package kr.or.ddit.groupware.service;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.groupware.model.VacationVo;
+import kr.or.ddit.groupware.repository.VacationDao;
+
+
+@Service("vacationService")
+public class VacationService implements VacationServiceI {
+
+	@Resource(name = "vacationDao")
+	private VacationDao vacationDao;
+
+	@Override
+	public int registVacation(VacationVo vacationVo) {
+		// TODO Auto-generated method stub
+		return vacationDao.registVacation(vacationVo);
+	}
+
+	@Override
+	public int vacationMaxNo() {
+		// TODO Auto-generated method stub
+		return vacationDao.vacationMaxNo();
+	}
+
+	@Override
+	public int vacationTime(VacationVo vacationVo) {
+		// TODO Auto-generated method stub
+		return vacationDao.vacationTime(vacationVo);
+	}
+
+	@Override
+	public int subVacCnt(VacationVo vacationVo) {
+		// TODO Auto-generated method stub
+		return vacationDao.subVacCnt(vacationVo);
+	}
+	
+}

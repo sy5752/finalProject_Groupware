@@ -1,0 +1,210 @@
+package kr.or.ddit.groupware.contoller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.ScdVo;
+import kr.or.ddit.groupware.service.ScdService;
+
+@RequestMapping("scd")
+@Controller
+public class ScdController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ScdController.class);
+	
+	@Resource(name = "scdService")
+	private ScdService scdService;
+	
+	//일정 조회
+	@RequestMapping("calendar")
+	public String calendar(Model model) {
+		
+		Date date = new Date();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		String start = sdf.format(date);
+		
+		List<ScdVo> scdList = scdService.selectAll();
+		  
+		model.addAttribute("scdList",scdList);
+		 
+		model.addAttribute("start", start);
+		
+		return "tiles.calendar.fullcalendar";
+	}
+	
+	//일정 분류 
+	@RequestMapping("calendarDiv")
+	public String calendarDiv(int scd_div_no, Model model) {
+		
+		Date date = new Date();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		String start = sdf.format(date);
+		
+		List<ScdVo> scdList = scdService.selectScd(scd_div_no);
+		
+		model.addAttribute("scdList",scdList);
+		
+		model.addAttribute("start", start);
+		model.addAttribute("scd_div_no", scd_div_no);
+		
+		return "tiles.calendar.fullcalendar";
+	}
+	
+	//캘린더 등록 form 조회
+	@RequestMapping("registCalendarForm")
+	public String calendar2(Date s_dt, Date e_dt, Model model) {
+		
+		model.addAttribute("s_dt", s_dt);
+		model.addAttribute("e_dt", e_dt);
+		
+		return "tiles.calendar.registCalendar";
+	}
+	
+	//일정 등록 완료 
+	@RequestMapping(path="registCalendar",method=RequestMethod.POST)
+	public String registCalendar(ScdVo scdVo) {
+		
+		logger.debug("scdVo : {}", scdVo);
+		
+		scdService.registCalendar(scdVo);
+		
+		return "redirect:/scd/calendar";
+	}
+	
+	// 상세정보
+	@RequestMapping("calendarView")
+	public String calendarView(int scd_no, Model model) {
+		
+		ScdVo scdVo = scdService.scdView(scd_no);
+		logger.debug("scdVo :{}",scdVo);
+		model.addAttribute("scdVo",scdVo);
+		
+		return "tiles.calendar.calendarView";
+	}
+	
+	//캘린더 수정 데이터을 불러오는 form
+	@RequestMapping(path="modifyCalendarForm",method=RequestMethod.POST)
+	public String modifyCalendar(int scd_no, Model model) {
+		ScdVo scdVo = scdService.scdView(scd_no);
+		logger.debug("scdVo :{}",scdVo);
+		model.addAttribute("scdVo",scdVo);
+		
+		return "tiles.calendar.modifyCalendar";
+	}
+	
+	//캘린더 수정완료
+	@RequestMapping(path="modifyCalendar",method=RequestMethod.POST)
+	public String modifyCalendar2(int scd_no,int scd_div_no, String s_dt2, String e_dt2, String plc, String title, String cont, int sta_cd ,int emp_no, Model model) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		Date s_dt =  sdf.parse(s_dt2);
+		logger.debug("s_dt :{}",s_dt);
+		
+		Date e_dt = sdf.parse(e_dt2);
+				
+		ScdVo scdVo = new ScdVo();
+	
+		scdVo.setS_dt(s_dt);
+		scdVo.setE_dt(e_dt);
+		scdVo.setPlc(plc);
+		scdVo.setTitle(title);
+		scdVo.setCont(cont);
+		scdVo.setSta_cd(sta_cd);
+		scdVo.setScd_no(scd_no);
+		scdVo.setScd_div_no(scd_div_no);
+		logger.debug("scdVo :{}",scdVo);
+		
+		int updateCnt   = scdService.modifyCalendar(scdVo);
+		
+		return "redirect:/scd/calendar";
+	}
+	//캘린더 삭제
+	@RequestMapping(path="deleteCalendar",method=RequestMethod.POST)
+	public String deleteCalendar(int scd_no, Model model) {
+		int deleteCnt = scdService.deleteCalendar(scd_no);
+		
+		
+		return "redirect:/scd/calendar";
+	}
+	
+	//캘린더 검색 조회
+	@RequestMapping(path="searchCalendar",method=RequestMethod.POST)
+	public String searchCalendar(@RequestParam(defaultValue = "1") int page,
+								 @RequestParam(defaultValue = "2") int pageSize, 
+								 String data, Model model) {
+		
+		logger.debug("data :{}", data);
+		Map<String, Object> paramap = new HashMap<String, Object>();
+		
+		PageVo pagevo = new PageVo(page,pageSize);
+		logger.debug("pagevo :{}", pagevo);
+
+		paramap.put("page", page);
+		paramap.put("pageSize", pageSize);
+		paramap.put("data", data);
+		Map<String, Object> map = scdService.searchPagingCalendar(paramap);
+		
+		List<ScdVo> scdList= (List<ScdVo>)map.get("scdList");
+		int scdCnt = (int)map.get("scdCnt");
+		
+		int pagination = (int) Math.ceil((double)scdCnt/pageSize);
+		
+		model.addAttribute("scdList", scdList);
+		model.addAttribute("data", data);
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("pageVo", pagevo);
+		
+		return "tiles.calendar.scdList";
+	}
+	
+	//캘린더 검색 페이징 처리
+	@RequestMapping(path="searchCalendar",method=RequestMethod.GET)
+	public String searchCalendar2(int page, int pageSize, String data, Model model) {
+		
+		logger.debug("searchCalendar2() ============================= \n");
+		
+		logger.debug("data :{}", data);
+		
+		Map<String, Object> paramap = new HashMap<String, Object>();
+		
+		paramap.put("page", page);
+		paramap.put("pageSize", pageSize);
+		paramap.put("data", data);
+		
+		Map<String, Object> map = scdService.searchPagingCalendar(paramap);
+		
+		List<ScdVo> scdList= (List<ScdVo>)map.get("scdList");
+		int scdCnt = (int)map.get("scdCnt");
+		
+		logger.debug("scdCnt : {}", scdCnt);
+		
+		PageVo pageVo = (PageVo)map.get("pageVo");
+		
+		int pagination = (int) Math.ceil((double)scdCnt/pageSize);
+		model.addAttribute("scdList", scdList);
+		model.addAttribute("data", data);
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("pageVo", pageVo);
+		
+		return "tiles.calendar.scdList";
+	}
+}

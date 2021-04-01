@@ -1,0 +1,62 @@
+package kr.or.ddit.groupware.repository;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.OnOffVo;
+
+@Repository("onoffDao")
+public class OnOffDao implements OnOffDaoI{
+
+	@Resource(name="sqlSessionTemplate")
+	private SqlSessionTemplate template;
+	
+	@Override
+	public List<OnOffVo> selectOnOffPaging(PageVo pageVo) {
+
+		return template.selectList("onoff.selectOnOffPaging", pageVo);
+	}
+
+	@Override
+	public int onoffCnt() {
+		
+		return template.selectOne("onoff.onoffCnt");
+	}
+
+	@Override
+	public List<OnOffVo> selectOnOffDetailPaging(Map<String, Object> map) {
+		
+		return template.selectList("onoff.selectOnOffDetailPaging", map);
+	}
+
+	@Override
+	public int onoffDetailCnt(int emp_no) {
+		
+		return template.selectOne("onoff.onoffDetailCnt", emp_no);
+	}
+
+	@Override
+	public OnOffVo selectonoff(int emp_no) {
+		
+		return template.selectOne("onoff.selectonoff", emp_no);
+	}
+
+	@Override
+	public List<OnOffVo> selectOnOfflist() {
+		
+		return template.selectList("onoff.selectOnOfflist");
+	}
+
+	@Override
+	public List<OnOffVo> selectOnOffDetaillist(int emp_no) {
+		
+		return template.selectList("onoff.selectOnOffDetaillist", emp_no);
+	}
+
+}

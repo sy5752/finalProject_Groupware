@@ -1,0 +1,59 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+
+<head>
+<script>
+$(function() {
+	$("#registAppDocument").on("click", function() {
+		$("#appSelect").empty();
+		$("#appSelect").append(
+			'<button type="button" id="registAppDraft" class="btn btn-info btn-3d">기안서</button> '+
+			'<button type="button" id="registAppDiploma" class="btn btn-info btn-3d">공문서</button> '+
+			'<button type="button" id="registAppBBC" class="btn btn-info btn-3d">업무협조전</button> <hr>'
+		)
+	})
+	
+	$("#registAppVacation").on("click", function() {
+		$("#appSelect").empty();
+		$("#appSelect").append(
+			'<button type="button" id="registAppAL" class="btn btn-info btn-3d">연차</button> '+
+			'<button type="button" id="registAppSRV" class="btn btn-info btn-3d">반차</button> <hr>'
+		)
+	})
+	$("#appSelect").on("click","#registAppDraft", function() {
+		$("#app_div_no").val("1");
+		$("#app_det_no").val("1");
+		$("#appfrm").submit();
+	})
+	
+	
+})
+</script>
+</head>
+
+<body>
+
+<form id="appfrm" action="${cp}/app/registApp" method="get">
+	<input type="hidden" name="emp_no" value="${S_USER.emp_no}">
+	<input type="hidden" id="app_div_no" name="app_div_no">
+	<input type="hidden" id="app_det_no" name="app_det_no">
+</form>
+
+<h1 style="text-align: center;">결재</h1>
+<hr style="color: black;">
+<div>
+<button type="button" id="registAppDocument" class="btn btn-primary btn-3d">일반문서</button>
+<button type="button" id="registAppVacation" class="btn btn-primary btn-3d">휴가</button>
+<button type="button" id="saveAppList" class="btn btn-primary btn-3d">임시저장함</button>
+<button type="button" id="AppList" class="btn btn-primary btn-3d">결재함</button>
+<hr>
+
+</div>
+
+<div id="appSelect">
+</div>
+
+
+
+</body>

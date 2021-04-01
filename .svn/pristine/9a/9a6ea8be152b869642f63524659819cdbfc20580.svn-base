@@ -1,0 +1,88 @@
+package kr.or.ddit.groupware.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.ScdVo;
+import kr.or.ddit.groupware.repository.ScdDao;
+
+@Service("scdService")
+public class ScdService implements ScdServiceI{
+private static final Logger logger = LoggerFactory.getLogger(ScdService.class);
+
+	@Resource(name = "scdDao")
+	private ScdDao scdDao;
+	
+	//일정 조회
+	@Override
+	public List<ScdVo> selectScd(int scd_div_no) {
+		return scdDao.selectScd(scd_div_no);
+	}
+
+	//일정 등록
+	@Override
+	public int registCalendar(ScdVo vo) {
+		return scdDao.registCalendar(vo);
+	}
+
+	//일정 상세정보
+	@Override
+	public ScdVo scdView(int scd_no) {
+		return scdDao.scdView(scd_no);
+	}
+
+	//일정 수정
+	@Override
+	public int modifyCalendar(ScdVo vo) {
+		return scdDao.modifyCalendar(vo);
+	}
+
+	//일정 삭제
+	@Override
+	public int deleteCalendar(int scd_no) {
+		return scdDao.deleteCalendar(scd_no);
+	}
+	//일정 전체조회
+	@Override
+	public List<ScdVo> selectAll() {
+		return scdDao.selectAll();
+	}
+	//일정 검색
+	@Override
+	public Map<String, Object> searchPagingCalendar(Map<String, Object> map) {
+		
+		logger.debug("searchPagingCalendar() ================== \n");
+		logger.debug("map : {}", map);
+		
+		Map<String, Object> paramap =  new HashMap<String, Object>();
+		
+		
+		List<ScdVo> scdList = scdDao.searchPagingCalendar(map);
+		
+		for(int i = 0; i < scdList.size(); i++) {
+			logger.debug("scdList : {}", scdList.get(i));			
+		}
+		
+		int scdCnt=  scdDao.SearchCalendar((String)map.get("data"));
+		logger.debug("scdCnt : {}", scdCnt);
+		
+		PageVo pageVo = new PageVo((int)map.get("page"), (int)map.get("pageSize"));
+		
+		paramap.put("scdList", scdList);
+		paramap.put("scdCnt", scdCnt);
+		paramap.put("pageVo", pageVo);
+		
+		return paramap;
+	}
+
+
+}

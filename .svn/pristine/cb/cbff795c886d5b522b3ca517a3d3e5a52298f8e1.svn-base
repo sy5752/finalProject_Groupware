@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="emp">
+ 
+	<!--  로그인 -->
+	<select id="selectUser" parameterType="String" resultType="empVo">
+	    SELECT * 
+	    FROM emp
+	    WHERE emp_id = #{emp_id}
+	</select>
+  
+	<!-- 인사정보 페이징처리  -->
+ 	<select id="selectPagingUser" resultType="empVo" parameterType="pageVo">
+	  	SELECT emp_no, emp_id, ko_nm, gender, birth, per_pn, per_email, cd_ko_nm 
+		FROM
+		    (SELECT ROWNUM rn, a.*
+		     FROM
+		         (SELECT *
+		          FROM emp e, comm_cd c
+                  WHERE e.PO_cd = c.COMM_NO
+		          ORDER BY emp_id
+		          ) a
+		     WHERE ROWNUM &lt;= #{page} * #{pageSize}
+		     )
+		WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize}
+	</select>
+  
+	<!-- 인사정보 사원수 -->
+	<select id="selectAllUserCount" resultType="int">
+  		SELECT COUNT(*)
+  		FROM emp
+	</select>
+	
+	<!-- 인사정보 상세조회 -->
+	<select id="detailUserAjax" parameterType="empVo" resultType="empVo">
+		SELECT emp_no, d.dept_no dept_no, dept_nm, mgr_no, emp_id, pass, ko_nm, eg_nm, gender, birth, per_pn, dept_pn, per_email, dept_email, zipcode, addr1, addr2, hire_dt, retire_dt, sal, profile_nm, profile_route, vac_cnt, per_info_agr_cd, ath_lv_cd, real_wk_cd,g.cd_ko_nm serve_nm, c.cd_ko_nm po_nm, r.cd_ko_nm
+		FROM emp e, comm_cd c, dept d, comm_cd g, comm_cd r
+		WHERE e.PO_CD = c.comm_no
+	      AND e.SERVE_CD = g.comm_no 
+	      AND e.dept_no = d.dept_no
+	      AND e.REAL_WK_CD = r.comm_no
+          AND emp_no = #{emp_no}
+        ORDER BY PO_CD
+		
+	</select>
+	
+	<select id="selectJobList" parameterType="int" resultType="String">
+		SELECT c.cd_ko_nm cd_ko_nm
+		FROM emp e, job j, comm_cd c
+		WHERE e.emp_no = j.emp_no
+		    AND j.JOB_CD = c.comm_no
+		AND e.emp_no = #{emp_no}
+	</select>
+	
+	<!-- 사원정보수정 -->
+	<update id="modifyUserAjax" parameterType="empVo">
+		UPDATE emp
+		SET pass = #{pass}, dept_no = #{dept_no}, sal = #{sal}, ko_nm = #{ko_nm}, eg_nm = #{eg_nm},
+			gender = #{gender}, ph = #{ph}, dh = #{dh}, email = #{email}, d_email = #{d_email},
+		    zipcode = #{zipcode}, addr1 = #{addr1}, addr2 = #{addr2}, hire_dt = #{hire_dt},
+		    retire_dt = #{retire_dt}, serve_sta = #{serve_sta}, po_sta = #{po_sta}, job_sta = #{job_sta}
+		WHERE emp_no = #{emp_no}		
+	</update>
+
+	<!-- 엑셀다운 list -->
+	<select id="selectAllEmp" resultType="empVo">
+		SELECT emp_no,pass,d.dept_no, d.dept_nm dept_nm, emp_id, ko_nm, eg_nm, gender, birth, ph, dh, email, d_email, zipcode, addr1, addr2, hire_dt, retire_dt, sal, profile_nm, profile_route, vac_cnt,g.CLF_NM serve_nm, c.CLF_NM po_nm, f.CLF_NM job_nm
+		FROM emp e, clf_cd c, dept d, clf_cd g, clf_cd f  
+        WHERE e.PO_STA = c.clf_no AND e.job_sta = f.clf_no 
+                  				  AND e.serve_sta = g.clf_no 
+                 				  AND e.dept_no = d.dept_no
+        ORDER BY po_sta
+	</select>
+	
+  
+	<!-- 마이페이지 인사정보 페이징처리  -->
+<!--  	<select id="selectPagingUser" resultType="empVo" parameterType="pageVo"> -->
+<!-- 	  	SELECT emp_id, ko_nm, gender, birth, ph, email, clf_nm -->
+<!-- 		FROM -->
+<!-- 		    (SELECT ROWNUM rn, a.* -->
+<!-- 		     FROM -->
+<!-- 		         (SELECT * -->
+<!-- 		          FROM emp e, clf_cd c -->
+<!--                   where e.PO_STA = c.clf_no AND ath_lv != 0 -->
+<!-- 		          ORDER BY emp_id -->
+<!-- 		          ) a -->
+<!-- 		     WHERE ROWNUM &lt;= #{page} * #{pageSize} -->
+<!-- 		     ) -->
+<!-- 		WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize} -->
+<!-- 	</select> -->
+  
+</mapper>

@@ -1,0 +1,59 @@
+package kr.or.ddit.groupware.repository;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import kr.or.ddit.groupware.model.ScdVo;
+
+@Repository("scdDao")
+public class ScdDao implements ScdDaoI {
+
+	@Resource(name = "sqlSessionTemplate")
+	private SqlSessionTemplate template;
+	
+	@Override
+	public List<ScdVo> selectScd(int scd_div_no) {
+		return template.selectList("scd.selectScd", scd_div_no);
+	}
+
+	@Override
+	public int registCalendar(ScdVo vo) {
+		return template.insert("scd.registCalendar", vo);
+	}
+
+	@Override
+	public ScdVo scdView(int scd_no) {
+		return template.selectOne("scd.scdView", scd_no);
+	}
+
+	@Override
+	public int modifyCalendar(ScdVo vo) {
+		return template.update("scd.modifyCalendar", vo);
+	}
+
+	@Override
+	public int deleteCalendar(int scd_no) {
+		return template.delete("scd.deleteCalendar", scd_no);
+	}
+
+	@Override
+	public List<ScdVo> selectAll() {
+		return template.selectList("scd.selectAll");
+	}
+
+	@Override
+	public List<ScdVo> searchPagingCalendar(Map<String, Object> map) {
+		return template.selectList("scd.searchPagingCalendar", map);
+	}
+
+	@Override
+	public int SearchCalendar(String data) {
+		return template.selectOne("scd.SearchCalendar", data);
+	}
+
+}

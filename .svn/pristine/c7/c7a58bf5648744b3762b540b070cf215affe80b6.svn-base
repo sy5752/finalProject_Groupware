@@ -1,0 +1,73 @@
+package kr.or.ddit.groupware.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.OnOffVo;
+import kr.or.ddit.groupware.repository.OnOffDaoI;
+
+@Service("onoffService")
+public class OnOffService implements OnOffServiceI{
+	
+	private static final Logger logger = LoggerFactory.getLogger(OnOffService.class);
+
+	@Resource(name="onoffDao")
+	private OnOffDaoI dao;
+	
+	@Override
+	public Map<String, Object> selectOnOffPaging(PageVo pageVo) {
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("onofflist", dao.selectOnOffPaging(pageVo));
+		map.put("pagination", (int)Math.ceil( (double)dao.onoffCnt() / pageVo.getPageSize()));
+		map.put("pageVo", pageVo);
+		
+		return map;
+	}
+	
+	@Override
+	public Map<String, Object> selectOnOffDetailPaging(Map<String, Object> map) {
+		
+		logger.debug("selectOnOffDetailPaging() ============================== \n\n");
+		
+		Map<String, Object> paramMap = new HashMap<>();
+		
+		int onoffdetailCnt = dao.onoffDetailCnt((int)map.get("emp_no"));		
+		
+		List<OnOffVo> onoffDetaillist = dao.selectOnOffDetailPaging(map);
+		paramMap.put("onoffDetaillist", onoffDetaillist);
+		paramMap.put("pagination", (int)Math.ceil( (double)onoffdetailCnt / (Integer)map.get("pageSize")));
+		paramMap.put("pageVo", map.get("pageVo"));
+		
+		return paramMap;
+	}
+
+	@Override
+	public OnOffVo selectonoff(int emp_no) {
+
+		return dao.selectonoff(emp_no);
+	}
+
+	@Override
+	public List<OnOffVo> selectOnOfflist() {
+		
+		return dao.selectOnOfflist();
+	}
+
+	@Override
+	public List<OnOffVo> selectOnOffDetaillist(int emp_no) {
+		
+		return dao.selectOnOffDetaillist(emp_no);
+	}
+
+
+}

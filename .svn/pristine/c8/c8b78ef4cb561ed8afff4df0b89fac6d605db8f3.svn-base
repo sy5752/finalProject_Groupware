@@ -1,0 +1,64 @@
+package kr.or.ddit.groupware.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.model.EmpVo;
+import kr.or.ddit.groupware.repository.EmpDao;
+
+@Service("empService")
+public class EmpService implements EmpServiceI{
+
+	@Resource(name = "empDao")
+	private EmpDao empDao;
+
+	//로그인
+	@Override
+	public EmpVo selectUser(String emp_id) {
+		return empDao.selectUser(emp_id);
+	}
+	
+	//인사정보 리스트
+	@Override
+	public Map<String, Object> selectPagingUser(PageVo vo) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<EmpVo> empList = empDao.selectPagingUser(vo);
+		
+		for(int i = 0; i<empList.size(); i++) {
+			empList.get(i).setJob_nm(empDao.selectJobList(empList.get(i).getEmp_no()));
+		}
+		
+		map.put("userList", empList);
+		map.put("userCnt", empDao.selectAllUserCount());
+		map.put("pagination", (int)Math.ceil( (double)empDao.selectAllUserCount() / vo.getPageSize()));
+		map.put("pageVo", vo);
+		
+		return map;
+	}
+	
+	//상세조회
+	@Override
+	public EmpVo detailUserAjax(EmpVo empVo) {
+		return empDao.detailUserAjax(empVo);
+	}
+
+	@Override
+	public int modifyUserAjax(EmpVo empVo) {
+		return empDao.modifyUserAjax(empVo);
+	}
+
+
+	@Override
+	public List<EmpVo> selectAllEmp() {
+		return empDao.selectAllEmp();
+	}
+
+	
+	
+}

@@ -1,0 +1,22 @@
+package kr.or.ddit.groupware.approval.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.common.model.PageVo;
+import kr.or.ddit.groupware.approval.model.AppLineVo;
+import kr.or.ddit.groupware.approval.model.AppVo;
+import kr.or.ddit.groupware.model.EmpVo;
+
+public interface AppServiceI {
+
+	//���缱 ���� ��� ����Ʈ
+	Map<String, Object> userInfoList(PageVo pageVO);
+	//문서번호에 필요한 정보
+	int appCnt();
+	//결재 등록
+	int registApp(AppVo appvo);
+	
+	int registAppLine(AppLineVo appLineVo);
+	
+}
